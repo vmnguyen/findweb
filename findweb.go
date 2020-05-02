@@ -5,13 +5,19 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/valyala/fasthttp"
 )
 
 var (
-	client *fasthttp.Client
-	ports  = []string{"80", "443", "8000", "8080"}
+	client = &fasthttp.Client{
+		ReadTimeout:              time.Second,
+		NoDefaultUserAgentHeader: true,
+		MaxConnsPerHost:          10000,
+		
+	}
+	ports = []string{"80", "443", "8000", "8080"}
 )
 
 func doRequest(url string) {
@@ -20,7 +26,7 @@ func doRequest(url string) {
 	defer fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(resp)
 	req.SetRequestURI(url)
-	fasthttp.Do(req, resp)
+	client.Do(req, resp)
 	bodyByte := resp.Body()
 	fmt.Println(string(bodyByte))
 }
@@ -35,7 +41,6 @@ func scanPort(filePath string, mode bool) {
 		for scanner.Scan() {
 			fmt.Println(scanner.Text())
 			doRequest(scanner.Text())
-
 		}
 
 	} else {
@@ -62,7 +67,6 @@ func main() {
 	} else {
 		scanPort(filePath, false)
 	}
-
 }
 
 func probe(target string, port int) bool {
