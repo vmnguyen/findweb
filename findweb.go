@@ -36,10 +36,10 @@ func doRequest(i interface{}) {
 	fmt.Println("[", bodyByte, "] ", url)
 }
 
-func scanPort(filePath string, mode bool) {
+func scanPort(filePath string, mode bool, concurrency int) {
 	defer ants.Release()
 
-	runTimes := 100
+	runTimes := concurrency
 
 	var wg sync.WaitGroup
 
@@ -76,11 +76,6 @@ func scanPort(filePath string, mode bool) {
 	}
 }
 
-func myFunction(i interface{}) {
-	url := i.(string)
-	fmt.Println("Running process", url)
-}
-
 func main() {
 
 	var mode string
@@ -95,13 +90,9 @@ func main() {
 	flag.Parse()
 
 	if mode == "domain" {
-		scanPort(filePath, true)
+		scanPort(filePath, true, concurrency)
 	} else {
-		scanPort(filePath, false)
+		scanPort(filePath, false, concurrency)
 	}
 
-}
-func probe(target string, port int) bool {
-	// Probe probe here
-	return false
 }
